@@ -1,0 +1,59 @@
+{
+  "name": "wcag-audio-player",
+  "version": "1.0.0",
+  "description": "En fullt tillgänglig audiospelare som följer WCAG 2.1 AA-riktlinjerna för webbtillgänglighet",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "serve": "npx serve .",
+    "lint": "npx eslint index.html --ext .html",
+    "format": "npx prettier --write *.html *.md",
+    "validate": "npx html-validate index.html",
+    "accessibility": "npx @axe-core/cli index.html",
+    "test": "echo \"No tests specified yet\" && exit 0"
+  },
+  "keywords": [
+    "accessibility",
+    "wcag",
+    "audio-player",
+    "screen-reader",
+    "keyboard-navigation",
+    "a11y",
+    "inclusive-design",
+    "web-accessibility"
+  ],
+  "author": "Tillgänglighetsspelare Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thille6/wcagplayer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/thille6/wcagplayer/issues"
+  },
+  "homepage": "https://github.com/thille6/wcagplayer#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "devDependencies": {
+    "@axe-core/cli": "^4.8.0",
+    "eslint": "^8.0.0",
+    "eslint-plugin-html": "^7.0.0",
+    "html-validate": "^8.0.0",
+    "prettier": "^3.0.0",
+    "serve": "^14.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ],
+  "files": [
+    "index.html",
+    "README.md",
+    "LICENSE",
+    "docs/",
+    "examples/"
+  ]
+}

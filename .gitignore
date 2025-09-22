@@ -23,13 +23,20 @@ desktop.ini
 *.log
 *.cache
 
-# Node.js (om du lägger till build-verktyg senare)
+# Node.js och npm
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-package-lock.json
-yarn.lock
+.npm
+.yarn-integrity
+
+# Lockfiler (kan inkluderas om du vill)
+# package-lock.json
+# yarn.lock
+
+# npm cache
+.npm/
 
 # Backup-filer
 *.bak
