@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tillgänglighetsspelare - Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .demo-section {
+            margin: 2rem 0;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .demo-link {
+            display: inline-block;
+            background: #007cba;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .demo-link:hover {
+            background: #005a87;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tillgänglighetsspelare - Demo</h1>
+    
+    <div class="demo-section">
+        <h2>Vad är Tillgänglighetsspelare?</h2>
+        <p>En fullt tillgänglig audiospelare som följer WCAG 2.1 AA-riktlinjerna. Spelaren är designad för att fungera perfekt med skärmläsare och tangentbordsnavigering.</p>
+        
+        <a href="../index.html" class="demo-link">Öppna Tillgänglighetsspelare</a>
+    </div>
+
+    <div class="demo-section">
+        <h2>Huvudfunktioner</h2>
+        <ul>
+            <li>🎵 Spela/pausa audio med mellanslag</li>
+            <li>⌨️ Fullständig tangentbordsnavigering</li>
+            <li>🔊 Volym- och hastighetskontroll</li>
+            <li>📋 Spellista med drag-and-drop</li>
+            <li>📝 Textvisning/lyrics</li>
+            <li>🎨 Mörkt/ljust tema</li>
+            <li>♿ WCAG 2.1 AA-kompatibel</li>
+        </ul>
+    </div>
+
+    <div class="demo-section">
+        <h2>Tangentbordsgenvägar</h2>
+        <table>
+            <tr><td><strong>Mellanslag</strong></td><td>Spela/pausa</td></tr>
+            <tr><td><strong>Pil höger/vänster</strong></td><td>Hoppa framåt/bakåt (10 sek)</td></tr>
+            <tr><td><strong>Pil upp/ner</strong></td><td>Volym upp/ner</td></tr>
+            <tr><td><strong>M</strong></td><td>Mute/unmute</td></tr>
+            <tr><td><strong>F</strong></td><td>Ladda upp fil</td></tr>
+            <tr><td><strong>L</strong></td><td>Växla lyrics</td></tr>
+            <tr><td><strong>T</strong></td><td>Växla tema</td></tr>
+            <tr><td><strong>S</strong></td><td>Shuffle</td></tr>
+            <tr><td><strong>R</strong></td><td>Repeat</td></tr>
+        </table>
+    </div>
+
+    <div class="demo-section">
+        <h2>Tillgänglighetstestning</h2>
+        <p>Spelaren har testats med:</p>
+        <ul>
+            <li>NVDA skärmläsare (Windows)</li>
+            <li>VoiceOver (macOS)</li>
+            <li>Tangentbordsnavigering</li>
+            <li>axe DevTools</li>
+            <li>WAVE accessibility checker</li>
+        </ul>
+    </div>
+
+    <footer>
+        <p><a href="../README.md">Läs mer i README</a> | <a href="../docs/ACCESSIBILITY.md">Tillgänglighetsdokumentation</a></p>
+    </footer>
+</body>
+</html>

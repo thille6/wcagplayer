@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimalist Player - Tillgänglig Musikspelare</title>
+    <style>
+        /* === RESET OCH GRUNDLÄGGANDE STILAR === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Mörkt tema (standard) */
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #404040;
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --border-color: #606060;
+            --accent-color: #0078d4;
+            --accent-hover: #106ebe;
+            --focus-color: #0078d4;
+            
+            /* Textstorlekar */
+            --text-size-multiplier: 1;
+            --base-font-size: calc(1rem * var(--text-size-multiplier));
+            --small-font-size: calc(0.9rem * var(--text-size-multiplier));
+            --large-font-size: calc(1.1rem * var(--text-size-multiplier));
+            --xl-font-size: calc(1.3rem * var(--text-size-multiplier));
+            --xxl-font-size: calc(1.5rem * var(--text-size-multiplier));
+        }
+
+        /* Ljust tema */
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --bg-tertiary: #e0e0e0;
+            --text-primary: #000000;
+            --text-secondary: #333333;
+            --border-color: #999999;
+            --accent-color: #0078d4;
+            --accent-hover: #106ebe;
+            --focus-color: #0078d4;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 1rem;
+            font-size: var(--base-font-size);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* === HUVUDCONTAINER === */
+        .player-container {
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            flex: 1;
+            margin-bottom: 2rem;
+        }
+
+        /* WCAG-kompatibel responsivitet för större text */
+        .text-size-extra-large .player-container {
+            padding: 1.5rem;
+            max-width: 90vw;
+        }
+
+        /* === TILLGÄNGLIGHETSVERKTYG === */
+        .accessibility-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background-color: var(--bg-tertiary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        /* Responsivitet för större text */
+        .text-size-extra-large .accessibility-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.75rem;
+        }
+
+        .theme-controls, .text-size-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .accessibility-btn {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: var(--small-font-size);
+            min-width: 40px;
+            min-height: 40px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+
+        .accessibility-btn:hover {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .accessibility-btn:focus {
+            outline: 2px solid var(--focus-color);
+            outline-offset: 2px;
+        }
+
+        .accessibility-label {
+            font-size: var(--small-font-size);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* === RUBRIK === */
+        .player-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: var(--xxl-font-size);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* === SPELARKONTROLLER === */
+        .controls-section {
+            margin-bottom: 2rem;
+        }
+
+        .main-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .control-btn {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: var(--large-font-size);
+            min-width: 48px;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .control-btn:hover {
+            background-color: var(--accent-color);
+            border-color: var(--accent-hover);
+            color: white;
+        }
+
+        .control-btn:focus {
+            outline: 3px solid var(--focus-color);
+            outline-offset: 2px;
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .control-btn:active {
+            transform: translateY(1px);
+        }
+
+        .play-btn {
+            background-color: var(--accent-color);
+            border-color: var(--accent-hover);
+            font-size: var(--xl-font-size);
+            min-width: 56px;
+            min-height: 56px;
+            color: white;
+        }
+
+        .play-btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        /* === FILUPPLADDNING === */
+        .file-upload-section {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-secondary);
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-section.dragover {
+            border-color: var(--accent-color);
+            background-color: var(--bg-tertiary);
+        }
+
+        .file-upload-content {
+            text-align: center;
+        }
+
+        .file-upload-btn {
+            background-color: var(--accent-color);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: var(--base-font-size);
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .file-upload-btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .file-upload-btn:focus {
+            outline: 2px solid var(--focus-color);
+            outline-offset: 2px;
+        }
+
+        .file-upload-text {
+            color: var(--text-secondary);
+            font-size: var(--small-font-size);
+            margin-bottom: 0.5rem;
+        }
+
+        .current-track {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background-color: var(--bg-tertiary);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .track-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: var(--base-font-size);
+            margin-bottom: 0.25rem;
+        }
+
+        .track-duration {
+            color: var(--text-secondary);
+            font-size: var(--small-font-size);
+        }
+
+        /* === PROGRESS BAR === */
+        .progress-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .time-display {
+            font-size: var(--small-font-size);
+            color: var(--text-secondary);
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background-color: var(--bg-tertiary);
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            border: 1px solid var(--border-color);
+            margin: 0 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        .progress-bar:focus {
+            outline: 2px solid var(--focus-color);
+            outline-offset: 2px;
+        }
+
+        /* === VOLYM- OCH HASTIGHETSKONTROLLER === */
+        .volume-section, .speed-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .control-label {
+            font-weight: 600;
+            min-width: 80px;
+            font-size: var(--small-font-size);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .small-btn {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: var(--small-font-size);
+            min-width: 40px;
+            min-height: 40px;
+            transition: all 0.2s ease;
+        }
+
+        .small-btn:hover {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .small-btn:focus {
+            outline: 2px solid var(--focus-color);
+            outline-offset: 1px;
+        }
+
+        .slider-container {
+            flex: 1;
+            margin: 0 0.5rem;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--bg-tertiary);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            border: 1px solid var(--border-color);
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
+            border: 2px solid var(--text-primary);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
+            border: 2px solid var(--text-primary);
+        }
+
+        .slider:focus {
+            outline: 2px solid var(--focus-color);
+            outline-offset: 2px;
+        }
+
+        .value-display {
+            min-width: 50px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: var(--small-font-size);
+        }
+
+        /* === LYRICS-SEKTION === */
+        .lyrics-section {
+            margin-top: 1.5rem;
+        }
+
+        .lyrics-toggle {
+            width: 100%;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: var(--base-font-size);
+            transition: all 0.2s ease;
+        }
+
+        .lyrics-toggle:hover {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .lyrics-toggle:focus {
+            outline: 2px solid var(--focus-color);
+            outline-offset: 2px;
+        }
+
+        .lyrics-panel {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .lyrics-panel.show {
+            display: block;
+        }
+
+        .lyrics-text {
+            line-height: 1.8;
+            color: var(--text-secondary);
+            font-size: var(--base-font-size);
+        }
+
+        /* Spellista-stilar */
+        .playlist-section {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .section-title {
+            color: var(--text-primary);
+            font-size: var(--base-font-size);
+            margin: 0 0 15px 0;
+            font-weight: bold;
+        }
+
+        .track-name {
+            font-weight: bold;
+            color: var(--text-primary);
+            font-size: var(--base-font-size);
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .playlist-item.current-track .track-name {
+            color: white;
+        }
+
+        .track-duration {
+            font-size: var(--small-font-size);
+            color: var(--text-secondary);
+        }
+
+        .playlist-item.current-track .track-duration {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .playlist-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .playlist-info {
+            margin-left: auto;
+            color: var(--text-secondary);
+            font-size: var(--small-font-size);
+        }
+
+        .playlist-container {
+            background-color: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .playlist-container:focus {
+            outline: 3px solid var(--focus-color);
+            outline-offset: 2px;
+        }
+
+        .playlist-empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: var(--text-secondary);
+            font-style: italic;
+            text-align: center;
+        }
+
+        .playlist-items {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .playlist-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-primary);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .playlist-item:last-child {
+            border-bottom: none;
+        }
+
+        .playlist-item:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .playlist-item:focus {
+            outline: 2px solid var(--focus-color);
+            outline-offset: -2px;
+            background-color: var(--bg-tertiary);
+        }
+
+        .playlist-item.current-track {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .playlist-item.current-track:hover,
+        .playlist-item.current-track:focus {
+            background-color: var(--accent-color);
+            opacity: 0.9;
+        }
+
+        .playlist-item.dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
+        }
+
+        .playlist-item.drag-over {
+            border-top: 3px solid var(--accent-color);
+        }
+
+        .track-number {
+            min-width: 30px;
+            font-size: var(--small-font-size);
+            color: var(--text-secondary);
+            font-weight: bold;
+        }
+
+        .playlist-item.current-track .track-number {
+            color: white;
+        }
+
+        .track-info {
+            flex: 1;
+            margin-left: 10px;
+            min-width: 0;
+        }
+
+        .track-controls {
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .playlist-item:hover .track-controls,
+        .playlist-item:focus .track-controls {
+            opacity: 1;
+        }
+
+        .playlist-item.current-track .track-controls {
+            opacity: 1;
+        }
+
+        .track-control-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: var(--small-font-size);
+            transition: all 0.2s ease;
+        }
+
+        .track-control-btn:hover {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .track-control-btn:focus {
+            outline: 2px solid var(--focus-color);
+            outline-offset: 1px;
+        }
+
+        .playlist-item.current-track .track-control-btn {
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+        }
+
+        .playlist-item.current-track .track-control-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-color: white;
+        }
+
+        .drag-handle {
+            cursor: grab;
+            color: var(--text-secondary);
+            margin-right: 8px;
+            font-size: var(--base-font-size);
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .playlist-item.current-track .drag-handle {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* === RESPONSIV DESIGN === */
+        @media (max-width: 480px) {
+            .player-container {
+                padding: 1.5rem;
+                margin: 0.5rem;
+            }
+
+            .accessibility-toolbar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .main-controls {
+                gap: 0.75rem;
+            }
+
+            .control-btn {
+                min-width: 44px;
+                min-height: 44px;
+                padding: 0.6rem;
+            }
+
+            .play-btn {
+                min-width: 52px;
+                min-height: 52px;
+            }
+
+            .control-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+
+            .control-label {
+                min-width: auto;
+                text-align: center;
+            }
+
+            .btn-group {
+                justify-content: center;
+            }
+
+            .progress-container {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .time-display {
+                min-width: auto;
+            }
+
+            .playlist-section {
+                padding: 15px;
+            }
+
+            .playlist-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .playlist-info {
+                margin-left: 0;
+                text-align: center;
+            }
+
+            .playlist-container {
+                max-height: 300px;
+            }
+
+            .playlist-item {
+                padding: 10px;
+            }
+
+            .track-info {
+                margin-left: 8px;
+            }
+
+            .track-controls {
+                opacity: 1;
+            }
+        }
+
+        /* === TILLGÄNGLIGHET === */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Förbättrad fokusmarkering för tangentbordsanvändare */
+        *:focus {
+            outline: 2px solid var(--focus-color);
+            outline-offset: 2px;
+        }
+
+        /* Hög kontrast för bättre läsbarhet */
+        @media (prefers-contrast: high) {
+            :root {
+                --border-color: #ffffff;
+                --focus-color: #ffff00;
+            }
+            
+            .control-btn, .small-btn, .lyrics-toggle, .accessibility-btn {
+                border-width: 2px;
+                border-color: var(--border-color);
+            }
+        }
+
+        /* Reducerad rörelse för användare som föredrar det */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                transition: none !important;
+                animation: none !important;
+            }
+        }
+
+        /* Textstorlek-klasser enligt WCAG-riktlinjer */
+        body.text-size-normal {
+            --text-size-multiplier: 1 !important;
+            --base-font-size: 1rem !important;
+            --small-font-size: 0.9rem !important;
+            --large-font-size: 1.1rem !important;
+            --xl-font-size: 1.3rem !important;
+            --xxl-font-size: 1.5rem !important;
+        }
+
+        body.text-size-large {
+            --text-size-multiplier: 1.5 !important;
+            --base-font-size: 1.5rem !important;
+            --small-font-size: 1.35rem !important;
+            --large-font-size: 1.65rem !important;
+            --xl-font-size: 1.95rem !important;
+            --xxl-font-size: 2.25rem !important;
+        }
+
+        body.text-size-extra-large {
+            --text-size-multiplier: 2 !important; /* 200% enligt WCAG */
+            --base-font-size: 2rem !important;
+            --small-font-size: 1.8rem !important;
+            --large-font-size: 2.2rem !important;
+            --xl-font-size: 2.6rem !important;
+            --xxl-font-size: 3rem !important;
+        }
+    </style>
+</head>
+<body>
+    <main class="player-container" role="main">
+        <h1 class="player-title">WCAG PLAYER</h1>
+        
+        <!-- Tillgänglighetsverktyg -->
+        <section class="accessibility-toolbar" aria-labelledby="accessibility-heading">
+            <h2 id="accessibility-heading" class="sr-only">Tillgänglighetsinställningar</h2>
+            
+            <div class="theme-controls">
+                <span class="accessibility-label">Tema:</span>
+                <button class="accessibility-btn" id="themeToggle" aria-label="Växla mellan mörkt och ljust tema" title="Växla tema (T)">
+                    <span id="themeIcon">🌙</span>
+                    <span id="themeText">Ljust</span>
+                </button>
+            </div>
+            
+            <div class="text-size-controls">
+                <span class="accessibility-label">Text:</span>
+                <button class="accessibility-btn" id="textSizeDown" aria-label="Minska textstorlek" title="Minska text (-)">
+                    A-
+                </button>
+                <button class="accessibility-btn" id="textSizeUp" aria-label="Öka textstorlek" title="Öka text (+)">
+                    A+
+                </button>
+                <span class="accessibility-label" id="textSizeDisplay">Normal</span>
+            </div>
+        </section>
+
+        <!-- Filuppladdning -->
+        <section class="file-upload-section" aria-labelledby="upload-heading">
+            <h2 id="upload-heading" class="sr-only">Ladda upp musikfiler</h2>
+            
+            <div class="file-upload-content">
+                <button class="file-upload-btn" id="fileUploadBtn" aria-label="Välj MP3-fil att ladda upp" title="Ladda upp fil (F)">
+                    📁 Välj MP3-fil
+                </button>
+                <div class="file-upload-text">
+                    eller dra och släpp en MP3-fil här
+                </div>
+                <input type="file" id="fileInput" accept=".mp3,audio/mp3" style="display: none;" aria-label="Filuppladdning">
+            </div>
+            
+            <div class="current-track" id="currentTrack" style="display: none;">
+                <div class="track-name" id="trackName">Ingen låt vald</div>
+                <div class="track-duration" id="trackDuration">00:00</div>
+            </div>
+        </section>
+
+        <!-- Progress bar -->
+        <section class="progress-section" aria-labelledby="progress-heading">
+            <h2 id="progress-heading" class="sr-only">Uppspelningsframsteg</h2>
+            
+            <div class="progress-container">
+                <div class="time-display" id="currentTime" aria-live="polite">00:00</div>
+                <div class="progress-bar" 
+                     id="progressBar" 
+                     role="slider" 
+                     aria-label="Uppspelningsframsteg" 
+                     aria-valuemin="0" 
+                     aria-valuemax="100" 
+                     aria-valuenow="0"
+                     tabindex="0"
+                     title="Klicka för att hoppa till position">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="time-display" id="totalTime">00:00</div>
+            </div>
+        </section>
+        
+        <!-- Huvudkontroller -->
+        <section class="controls-section" aria-labelledby="main-controls-heading">
+            <h2 id="main-controls-heading" class="sr-only">Huvudkontroller för musikspelare</h2>
+            
+            <div class="main-controls">
+                <button class="control-btn" id="prevBtn" aria-label="Föregående låt" title="Föregående låt (Vänsterpil)">
+                    ⏮
+                </button>
+                <button class="control-btn play-btn" id="playBtn" aria-label="Spela upp musik" title="Spela/Pausa (Mellanslag)">
+                    ▶
+                </button>
+                <button class="control-btn" id="nextBtn" aria-label="Nästa låt" title="Nästa låt (Högerpil)">
+                    ⏭
+                </button>
+            </div>
+        </section>
+
+        <!-- Volymkontroll -->
+        <section class="volume-section" aria-labelledby="volume-heading">
+            <h2 id="volume-heading" class="sr-only">Volymkontroll</h2>
+            
+            <div class="control-group">
+                <label class="control-label" for="volumeSlider">Volym:</label>
+                <div class="btn-group">
+                    <button class="small-btn" id="volumeDown" aria-label="Sänk volym" title="Sänk volym (Ned)">
+                        −
+                    </button>
+                    <button class="small-btn" id="volumeUp" aria-label="Höj volym" title="Höj volym (Upp)">
+                        +
+                    </button>
+                </div>
+                <div class="slider-container">
+                    <input type="range" 
+                           class="slider" 
+                           id="volumeSlider" 
+                           min="0" 
+                           max="100" 
+                           value="70" 
+                           aria-label="Volym slider"
+                           aria-valuemin="0"
+                           aria-valuemax="100"
+                           aria-valuenow="70"
+                           aria-valuetext="70 procent volym">
+                </div>
+                <div class="value-display" id="volumeDisplay" aria-live="polite">70%</div>
+            </div>
+        </section>
+
+        <!-- Hastighetskontroll -->
+        <section class="speed-section" aria-labelledby="speed-heading">
+            <h2 id="speed-heading" class="sr-only">Uppspelningshastighet</h2>
+            
+            <div class="control-group">
+                <label class="control-label" for="speedSlider">Hastighet:</label>
+                <div class="btn-group">
+                    <button class="small-btn" id="speedDown" aria-label="Sänk hastighet" title="Sänk hastighet">
+                        −
+                    </button>
+                    <button class="small-btn" id="speedUp" aria-label="Höj hastighet" title="Höj hastighet">
+                        +
+                    </button>
+                </div>
+                <div class="slider-container">
+                    <input type="range" 
+                           class="slider" 
+                           id="speedSlider" 
+                           min="50" 
+                           max="200" 
+                           value="100" 
+                           step="25"
+                           aria-label="Hastighet slider"
+                           aria-valuemin="0.5"
+                           aria-valuemax="2"
+                           aria-valuenow="1"
+                           aria-valuetext="Normal hastighet">
+                </div>
+                <div class="value-display" id="speedDisplay" aria-live="polite">1.0x</div>
+            </div>
+        </section>
+
+        <!-- Spellista -->
+        <section class="playlist-section" aria-labelledby="playlist-heading">
+            <h2 id="playlist-heading" class="section-title">Spellista</h2>
+            
+            <div class="playlist-controls">
+                <button class="control-btn" id="clearPlaylistBtn" aria-label="Rensa hela spellistan" title="Rensa spellista">
+                    🗑️ Rensa alla
+                </button>
+                <button class="control-btn" id="shufflePlaylistBtn" aria-label="Blanda spellistan" title="Blanda ordning (S)">
+                    🔀 Blanda
+                </button>
+                <div class="playlist-info" aria-live="polite">
+                    <span id="playlistCount">0 låtar</span>
+                </div>
+            </div>
+            
+            <div class="playlist-container" 
+                 id="playlistContainer"
+                 role="listbox" 
+                 aria-label="Spellista med låtar" 
+                 aria-describedby="playlist-instructions"
+                 tabindex="0">
+                
+                <div id="playlist-instructions" class="sr-only">
+                    Använd piltangenterna för att navigera, Enter för att spela, Delete för att ta bort, och dra för att ordna om låtar.
+                </div>
+                
+                <div id="playlistEmpty" class="playlist-empty" aria-live="polite">
+                    <p>Spellistan är tom. Ladda upp filer för att lägga till låtar.</p>
+                </div>
+                
+                <ul id="playlistItems" class="playlist-items" role="list" aria-label="Låtar i spellistan">
+                    <!-- Låtar läggs till dynamiskt här -->
+                </ul>
+            </div>
+        </section>
+
+        <!-- Lyrics-sektion -->
+        <section class="lyrics-section" aria-labelledby="lyrics-heading">
+            <h2 id="lyrics-heading" class="sr-only">Låttext</h2>
+            
+            <button class="lyrics-toggle" 
+                    id="lyricsToggle" 
+                    aria-expanded="false" 
+                    aria-controls="lyricsPanel"
+                    title="Visa/dölj låttext (L)">
+                <span id="lyricsToggleText">Visa låttext</span>
+            </button>
+            
+            <div class="lyrics-panel" id="lyricsPanel" role="region" aria-labelledby="lyrics-heading">
+                <div class="lyrics-text">
+                    <p>Här visas låttexten när en låt spelas upp.</p>
+                    <p>Texten kommer att uppdateras automatiskt baserat på den aktuella låten.</p>
+                    <p>Detta är en demonstration av hur låttext kan visas på ett tillgängligt sätt.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dold audio-element för framtida implementation -->
+        <audio id="audioPlayer" preload="none" aria-hidden="true"></audio>
+    </main>
+
+    <script>
+        // === GLOBALA VARIABLER ===
+        let isPlaying = false;
+        let currentVolume = 70;
+        let currentSpeed = 100;
+        let lyricsVisible = false;
+        let currentTheme = 'dark';
+        let currentTextSize = 'normal';
+        let currentTrackFile = null;
+        let currentTime = 0;
+        let duration = 0;
+        
+        // Spellista-variabler
+        let playlist = [];
+        let currentTrackIndex = -1;
+        let playlistVisible = true;
+
+        // === DOM-ELEMENT ===
+        // Tillgänglighetsverktyg
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeText = document.getElementById('themeText');
+        const textSizeUp = document.getElementById('textSizeUp');
+        const textSizeDown = document.getElementById('textSizeDown');
+        const textSizeDisplay = document.getElementById('textSizeDisplay');
+        
+        // Filuppladdning
+        const fileUploadBtn = document.getElementById('fileUploadBtn');
+        const fileInput = document.getElementById('fileInput');
+        const fileUploadSection = document.querySelector('.file-upload-section');
+        const currentTrack = document.getElementById('currentTrack');
+        const trackName = document.getElementById('trackName');
+        const trackDuration = document.getElementById('trackDuration');
+        
+        // Progress bar
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const currentTimeDisplay = document.getElementById('currentTime');
+        const totalTimeDisplay = document.getElementById('totalTime');
+        
+        // Spelarkontroller
+        const playBtn = document.getElementById('playBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeDisplay = document.getElementById('volumeDisplay');
+        const volumeUpBtn = document.getElementById('volumeUp');
+        const volumeDownBtn = document.getElementById('volumeDown');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedDisplay = document.getElementById('speedDisplay');
+        const speedUpBtn = document.getElementById('speedUp');
+        const speedDownBtn = document.getElementById('speedDown');
+        const lyricsToggle = document.getElementById('lyricsToggle');
+        const lyricsPanel = document.getElementById('lyricsPanel');
+        const lyricsToggleText = document.getElementById('lyricsToggleText');
+        const audioPlayer = document.getElementById('audioPlayer');
+        
+        // Spellista-element
+        const clearPlaylistBtn = document.getElementById('clearPlaylistBtn');
+        const shufflePlaylistBtn = document.getElementById('shufflePlaylistBtn');
+        const playlistCount = document.getElementById('playlistCount');
+        const playlistContainer = document.getElementById('playlistContainer');
+        const playlistEmpty = document.getElementById('playlistEmpty');
+        const playlistItems = document.getElementById('playlistItems');
+
+        // === HJÄLPFUNKTIONER ===
+        
+        // Tema-funktioner
+        function toggleTheme() {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', currentTheme === 'light' ? 'light' : '');
+            
+            themeIcon.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+            themeText.textContent = currentTheme === 'dark' ? 'Ljust' : 'Mörkt';
+            
+            // Spara preferens
+            localStorage.setItem('theme', currentTheme);
+            announceStatus(`Växlade till ${currentTheme === 'dark' ? 'mörkt' : 'ljust'} tema`);
+        }
+
+        // Textstorlek-funktioner
+        function changeTextSize(direction) {
+            const sizes = ['normal', 'large', 'extra-large'];
+            const currentIndex = sizes.indexOf(currentTextSize);
+            
+            let newIndex;
+            if (direction === 'up' && currentIndex < sizes.length - 1) {
+                newIndex = currentIndex + 1;
+            } else if (direction === 'down' && currentIndex > 0) {
+                newIndex = currentIndex - 1;
+            } else {
+                return; // Ingen förändring möjlig
+            }
+            
+            // Ta bort alla befintliga textstorlek-klasser
+            document.body.classList.remove('text-size-normal', 'text-size-large', 'text-size-extra-large');
+            
+            currentTextSize = sizes[newIndex];
+            document.body.classList.add(`text-size-${currentTextSize}`);
+            
+            const sizeNames = { 'normal': 'Normal (100%)', 'large': 'Stor (150%)', 'extra-large': 'Extra stor (200%)' };
+            textSizeDisplay.textContent = sizeNames[currentTextSize];
+            
+            // Spara preferens
+            localStorage.setItem('textSize', currentTextSize);
+            announceStatus(`Textstorlek ändrad till ${sizeNames[currentTextSize]}`);
+            
+            // Tillfällig visuell feedback
+            document.body.style.transition = 'all 0.3s ease';
+            document.body.style.outline = '3px solid #0078d4';
+            setTimeout(() => {
+                document.body.style.outline = 'none';
+            }, 1000);
+            
+            console.log(`Textstorlek ändrad till: ${currentTextSize}, klass: text-size-${currentTextSize}`);
+        }
+
+        // Tidsformatering
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Filhantering
+        function handleFileSelect(file) {
+            if (!file || !file.type.includes('audio')) {
+                announceStatus('Fel: Endast MP3-filer stöds');
+                return;
+            }
+
+            // Lägg till i spellistan
+            addToPlaylist(file);
+        }
+
+        // === SPELLISTFUNKTIONER ===
+        
+        function addToPlaylist(file) {
+            const trackId = Date.now() + Math.random(); // Unik ID
+            const trackData = {
+                id: trackId,
+                file: file,
+                name: file.name.replace(/\.[^/.]+$/, ""),
+                url: URL.createObjectURL(file),
+                duration: 0
+            };
+            
+            playlist.push(trackData);
+            
+            // Skapa audio-element för att få duration
+            const tempAudio = new Audio(trackData.url);
+            tempAudio.addEventListener('loadedmetadata', function() {
+                trackData.duration = tempAudio.duration;
+                updatePlaylistDisplay();
+                announceStatus(`Låt tillagd i spellistan: ${trackData.name}`);
+            }, { once: true });
+            
+            tempAudio.addEventListener('error', function() {
+                // Ta bort från spellistan om filen inte kan laddas
+                playlist = playlist.filter(track => track.id !== trackId);
+                updatePlaylistDisplay();
+                announceStatus('Fel: Kunde inte ladda ljudfilen');
+            }, { once: true });
+            
+            updatePlaylistDisplay();
+            
+            // Spela första låten automatiskt om spellistan var tom
+            if (playlist.length === 1 && currentTrackIndex === -1) {
+                playTrackFromPlaylist(0);
+            }
+        }
+        
+        function removeFromPlaylist(trackId) {
+            const trackIndex = playlist.findIndex(track => track.id === trackId);
+            if (trackIndex === -1) return;
+            
+            const trackName = playlist[trackIndex].name;
+            
+            // Rensa URL för att frigöra minne
+            URL.revokeObjectURL(playlist[trackIndex].url);
+            
+            // Ta bort från spellistan
+            playlist.splice(trackIndex, 1);
+            
+            // Uppdatera currentTrackIndex om nödvändigt
+            if (trackIndex === currentTrackIndex) {
+                // Nuvarande låt togs bort
+                if (playlist.length === 0) {
+                    currentTrackIndex = -1;
+                    stopCurrentTrack();
+                } else if (trackIndex >= playlist.length) {
+                    currentTrackIndex = playlist.length - 1;
+                    playTrackFromPlaylist(currentTrackIndex);
+                } else {
+                    playTrackFromPlaylist(trackIndex);
+                }
+            } else if (trackIndex < currentTrackIndex) {
+                currentTrackIndex--;
+            }
+            
+            updatePlaylistDisplay();
+            announceStatus(`Låt borttagen från spellistan: ${trackName}`);
+        }
+        
+        function clearPlaylist() {
+            // Rensa alla URLs
+            playlist.forEach(track => URL.revokeObjectURL(track.url));
+            playlist = [];
+            currentTrackIndex = -1;
+            stopCurrentTrack();
+            updatePlaylistDisplay();
+            announceStatus('Spellistan rensad');
+        }
+        
+        function shufflePlaylist() {
+            if (playlist.length <= 1) return;
+            
+            const currentTrack = currentTrackIndex >= 0 ? playlist[currentTrackIndex] : null;
+            
+            // Fisher-Yates shuffle
+            for (let i = playlist.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
+            }
+            
+            // Hitta den nuvarande låtens nya position
+            if (currentTrack) {
+                currentTrackIndex = playlist.findIndex(track => track.id === currentTrack.id);
+            }
+            
+            updatePlaylistDisplay();
+            announceStatus('Spellistan blandad');
+        }
+        
+        function playTrackFromPlaylist(index) {
+            if (index < 0 || index >= playlist.length) return;
+            
+            const track = playlist[index];
+            currentTrackIndex = index;
+            currentTrackFile = track.file;
+            
+            audioPlayer.src = track.url;
+            audioPlayer.load();
+            
+            trackName.textContent = track.name;
+            trackDuration.textContent = formatTime(track.duration);
+            totalTimeDisplay.textContent = formatTime(track.duration);
+            currentTrack.style.display = 'block';
+            
+            duration = track.duration;
+            
+            updatePlaylistDisplay();
+            
+            // Spela automatiskt om musik redan spelade
+            if (isPlaying) {
+                audioPlayer.play().catch(error => {
+                    console.error('Playback error:', error);
+                    announceStatus('Fel: Kunde inte spela upp musik');
+                });
+            }
+            
+            announceStatus(`Spelar nu: ${track.name}`);
+        }
+        
+        function playNextTrack() {
+            if (playlist.length === 0) return;
+            
+            const nextIndex = (currentTrackIndex + 1) % playlist.length;
+            playTrackFromPlaylist(nextIndex);
+        }
+        
+        function playPreviousTrack() {
+            if (playlist.length === 0) return;
+            
+            const prevIndex = currentTrackIndex <= 0 ? playlist.length - 1 : currentTrackIndex - 1;
+            playTrackFromPlaylist(prevIndex);
+        }
+        
+        function stopCurrentTrack() {
+            audioPlayer.pause();
+            audioPlayer.src = '';
+            isPlaying = false;
+            playBtn.textContent = '▶';
+            playBtn.setAttribute('aria-label', 'Spela upp musik');
+            currentTrack.style.display = 'none';
+            currentTrackFile = null;
+            updatePlaylistDisplay();
+        }
+        
+        function updatePlaylistDisplay() {
+            // Uppdatera räknare
+            playlistCount.textContent = `${playlist.length} låtar`;
+            
+            // Visa/dölj tom-meddelande
+            if (playlist.length === 0) {
+                playlistEmpty.style.display = 'block';
+                playlistItems.style.display = 'none';
+            } else {
+                playlistEmpty.style.display = 'none';
+                playlistItems.style.display = 'block';
+            }
+            
+            // Rensa befintliga objekt
+            playlistItems.innerHTML = '';
+            
+            // Lägg till alla låtar
+            playlist.forEach((track, index) => {
+                const listItem = document.createElement('li');
+                listItem.className = 'playlist-item';
+                listItem.setAttribute('role', 'option');
+                listItem.setAttribute('aria-selected', index === currentTrackIndex ? 'true' : 'false');
+                listItem.setAttribute('tabindex', '0');
+                listItem.setAttribute('data-track-id', track.id);
+                listItem.setAttribute('data-track-index', index);
+                listItem.draggable = true;
+                
+                if (index === currentTrackIndex) {
+                    listItem.classList.add('current-track');
+                    listItem.setAttribute('aria-label', `Spelar nu: ${track.name}, ${formatTime(track.duration)}`);
+                } else {
+                    listItem.setAttribute('aria-label', `${track.name}, ${formatTime(track.duration)}`);
+                }
+                
+                listItem.innerHTML = `
+                    <div class="track-info">
+                        <div class="track-name">${track.name}</div>
+                        <div class="track-duration">${formatTime(track.duration)}</div>
+                    </div>
+                    <div class="track-controls">
+                        <button class="track-btn play-track-btn" 
+                                aria-label="Spela ${track.name}" 
+                                title="Spela denna låt">
+                            ▶
+                        </button>
+                        <button class="track-btn remove-track-btn" 
+                                aria-label="Ta bort ${track.name} från spellistan" 
+                                title="Ta bort från spellistan">
+                            ✕
+                        </button>
+                    </div>
+                `;
+                
+                // Event listeners för låtobjekt
+                const playTrackBtn = listItem.querySelector('.play-track-btn');
+                const removeTrackBtn = listItem.querySelector('.remove-track-btn');
+                
+                playTrackBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    playTrackFromPlaylist(index);
+                    if (!isPlaying) {
+                        togglePlayPause();
+                    }
+                });
+                
+                removeTrackBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    removeFromPlaylist(track.id);
+                });
+                
+                // Klick på låtobjekt för att spela
+                listItem.addEventListener('click', () => {
+                    playTrackFromPlaylist(index);
+                });
+                
+                // Tangentbordsstöd för låtobjekt
+                listItem.addEventListener('keydown', (e) => {
+                    switch(e.code) {
+                        case 'Enter':
+                        case 'Space':
+                            e.preventDefault();
+                            playTrackFromPlaylist(index);
+                            if (!isPlaying) {
+                                togglePlayPause();
+                            }
+                            break;
+                        case 'Delete':
+                        case 'Backspace':
+                            e.preventDefault();
+                            removeFromPlaylist(track.id);
+                            break;
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            const prevItem = listItem.previousElementSibling;
+                            if (prevItem) prevItem.focus();
+                            break;
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            const nextItem = listItem.nextElementSibling;
+                            if (nextItem) nextItem.focus();
+                            break;
+                    }
+                });
+                
+                // Drag and drop för omordning
+                listItem.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', index.toString());
+                    listItem.classList.add('dragging');
+                });
+                
+                listItem.addEventListener('dragend', () => {
+                    listItem.classList.remove('dragging');
+                });
+                
+                listItem.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+                
+                listItem.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const draggedIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                    const targetIndex = index;
+                    
+                    if (draggedIndex !== targetIndex) {
+                        moveTrackInPlaylist(draggedIndex, targetIndex);
+                    }
+                });
+                
+                playlistItems.appendChild(listItem);
+            });
+        }
+        
+        function moveTrackInPlaylist(fromIndex, toIndex) {
+            if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || 
+                fromIndex >= playlist.length || toIndex >= playlist.length) {
+                return;
+            }
+            
+            const track = playlist.splice(fromIndex, 1)[0];
+            playlist.splice(toIndex, 0, track);
+            
+            // Uppdatera currentTrackIndex
+            if (currentTrackIndex === fromIndex) {
+                currentTrackIndex = toIndex;
+            } else if (fromIndex < currentTrackIndex && toIndex >= currentTrackIndex) {
+                currentTrackIndex--;
+            } else if (fromIndex > currentTrackIndex && toIndex <= currentTrackIndex) {
+                currentTrackIndex++;
+            }
+            
+            updatePlaylistDisplay();
+            announceStatus(`Låt flyttad i spellistan`);
+        }
+
+        // Progress bar uppdatering
+        function updateProgress() {
+            if (audioPlayer) {
+                currentTime = audioPlayer.currentTime;
+                
+                // Använd audioPlayer.duration om duration inte är satt eller är 0
+                const actualDuration = duration > 0 ? duration : audioPlayer.duration;
+                
+                if (actualDuration > 0) {
+                    const progress = (currentTime / actualDuration) * 100;
+                    
+                    progressFill.style.width = progress + '%';
+                    currentTimeDisplay.textContent = formatTime(currentTime);
+                    progressBar.setAttribute('aria-valuenow', Math.round(progress));
+                    progressBar.setAttribute('aria-valuetext', `${Math.round(progress)} procent spelat`);
+                    
+                    // Uppdatera duration om den inte var satt tidigare
+                    if (duration <= 0 && audioPlayer.duration > 0) {
+                        duration = audioPlayer.duration;
+                        trackDuration.textContent = formatTime(duration);
+                        totalTimeDisplay.textContent = formatTime(duration);
+                    }
+                } else {
+                    // Visa åtminstone aktuell tid även om duration inte är tillgänglig
+                    currentTimeDisplay.textContent = formatTime(currentTime);
+                }
+            }
+        }
+
+        function updateVolumeDisplay(value) {
+            currentVolume = value;
+            volumeDisplay.textContent = value + '%';
+            volumeSlider.setAttribute('aria-valuenow', value);
+            volumeSlider.setAttribute('aria-valuetext', value + ' procent volym');
+            
+            if (audioPlayer) {
+                audioPlayer.volume = value / 100;
+            }
+        }
+
+        function updateSpeedDisplay(value) {
+            currentSpeed = value;
+            const speedValue = (value / 100).toFixed(1);
+            speedDisplay.textContent = speedValue + 'x';
+            speedSlider.setAttribute('aria-valuenow', speedValue);
+            speedSlider.setAttribute('aria-valuetext', 
+                speedValue === '1.0' ? 'Normal hastighet' : speedValue + ' gånger hastighet');
+            
+            // Uppdatera audio-elementets hastighet (för framtida implementation)
+            if (audioPlayer) {
+                audioPlayer.playbackRate = speedValue;
+            }
+        }
+
+        function togglePlayPause() {
+            if (!currentTrackFile && playlist.length === 0) {
+                announceStatus('Ingen låt laddad. Ladda upp en MP3-fil först.');
+                return;
+            }
+            
+            // Om ingen låt är vald men spellistan har låtar, spela första låten
+            if (!currentTrackFile && playlist.length > 0) {
+                playTrackFromPlaylist(0);
+                return;
+            }
+            
+            if (isPlaying) {
+                audioPlayer.pause();
+                isPlaying = false;
+                playBtn.textContent = '▶';
+                playBtn.setAttribute('aria-label', 'Spela upp musik');
+                playBtn.setAttribute('title', 'Spela (Mellanslag)');
+                announceStatus('Musik pausad');
+            } else {
+                audioPlayer.play().then(() => {
+                    isPlaying = true;
+                    playBtn.textContent = '⏸';
+                    playBtn.setAttribute('aria-label', 'Pausa musik');
+                    playBtn.setAttribute('title', 'Pausa (Mellanslag)');
+                    announceStatus('Spelar musik');
+                }).catch(error => {
+                    announceStatus('Fel: Kunde inte spela upp musik');
+                    console.error('Playback error:', error);
+                });
+            }
+        }
+
+        function toggleLyrics() {
+            lyricsVisible = !lyricsVisible;
+            lyricsPanel.classList.toggle('show', lyricsVisible);
+            lyricsToggle.setAttribute('aria-expanded', lyricsVisible.toString());
+            lyricsToggleText.textContent = lyricsVisible ? 'Dölj låttext' : 'Visa låttext';
+            
+            // Fokusera på lyrics-panelen när den öppnas för skärmläsare
+            if (lyricsVisible) {
+                lyricsPanel.focus();
+            }
+        }
+
+        // === EVENT LISTENERS ===
+        
+        // Tema-växling
+        themeToggle.addEventListener('click', toggleTheme);
+        
+        // Textstorlek-kontroller
+        textSizeUp.addEventListener('click', () => changeTextSize('up'));
+        textSizeDown.addEventListener('click', () => changeTextSize('down'));
+        
+        // Filuppladdning
+        fileUploadBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+        
+        // Drag and drop
+        fileUploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadSection.classList.add('dragover');
+        });
+        
+        fileUploadSection.addEventListener('dragleave', () => {
+            fileUploadSection.classList.remove('dragover');
+        });
+        
+        fileUploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadSection.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length > 0) {
+                handleFileSelect(e.dataTransfer.files[0]);
+            }
+        });
+        
+        // Progress bar interaktion
+        progressBar.addEventListener('click', (e) => {
+            if (audioPlayer && duration > 0) {
+                const rect = progressBar.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const percentage = clickX / rect.width;
+                const newTime = percentage * duration;
+                
+                audioPlayer.currentTime = newTime;
+                announceStatus(`Hoppade till ${formatTime(newTime)}`);
+            }
+        });
+        
+        // Audio player events
+        if (audioPlayer) {
+            audioPlayer.addEventListener('timeupdate', updateProgress);
+            
+            // Uppdatera duration när metadata laddas
+            audioPlayer.addEventListener('loadedmetadata', () => {
+                if (audioPlayer.duration && !isNaN(audioPlayer.duration)) {
+                    duration = audioPlayer.duration;
+                    trackDuration.textContent = formatTime(duration);
+                    totalTimeDisplay.textContent = formatTime(duration);
+                    
+                    // Uppdatera spellistan med korrekt duration om den skiljer sig
+                    if (currentTrackIndex >= 0 && currentTrackIndex < playlist.length) {
+                        playlist[currentTrackIndex].duration = duration;
+                    }
+                }
+            });
+            
+            audioPlayer.addEventListener('ended', () => {
+                isPlaying = false;
+                playBtn.textContent = '▶';
+                playBtn.setAttribute('aria-label', 'Spela upp musik');
+                
+                // Spela nästa låt automatiskt om det finns fler låtar
+                if (playlist.length > 0 && currentTrackIndex < playlist.length - 1) {
+                    playNextTrack();
+                    if (isPlaying) {
+                        togglePlayPause(); // Starta uppspelning
+                    }
+                } else {
+                    announceStatus('Spellistan är slut');
+                }
+            });
+        }
+        
+        // Huvudkontroller
+        playBtn.addEventListener('click', togglePlayPause);
+        
+        prevBtn.addEventListener('click', () => {
+            if (playlist.length > 0) {
+                playPreviousTrack();
+            } else {
+                announceStatus('Ingen spellista tillgänglig');
+            }
+        });
+        
+        nextBtn.addEventListener('click', () => {
+            if (playlist.length > 0) {
+                playNextTrack();
+            } else {
+                announceStatus('Ingen spellista tillgänglig');
+            }
+        });
+
+        // Spellistkontroller
+        clearPlaylistBtn.addEventListener('click', () => {
+            if (playlist.length > 0) {
+                if (confirm('Är du säker på att du vill rensa hela spellistan?')) {
+                    clearPlaylist();
+                }
+            } else {
+                announceStatus('Spellistan är redan tom');
+            }
+        });
+
+        shufflePlaylistBtn.addEventListener('click', () => {
+            if (playlist.length > 1) {
+                shufflePlaylist();
+            } else {
+                announceStatus('Behöver minst 2 låtar för att blanda');
+            }
+        });
+
+        // Volymkontroller
+        volumeSlider.addEventListener('input', (e) => {
+            updateVolumeDisplay(parseInt(e.target.value));
+        });
+
+        volumeUpBtn.addEventListener('click', () => {
+            const newVolume = Math.min(100, currentVolume + 10);
+            volumeSlider.value = newVolume;
+            updateVolumeDisplay(newVolume);
+        });
+
+        volumeDownBtn.addEventListener('click', () => {
+            const newVolume = Math.max(0, currentVolume - 10);
+            volumeSlider.value = newVolume;
+            updateVolumeDisplay(newVolume);
+        });
+
+        // Hastighetskontroller
+        speedSlider.addEventListener('input', (e) => {
+            updateSpeedDisplay(parseInt(e.target.value));
+        });
+
+        speedUpBtn.addEventListener('click', () => {
+            const newSpeed = Math.min(200, currentSpeed + 25);
+            speedSlider.value = newSpeed;
+            updateSpeedDisplay(newSpeed);
+        });
+
+        speedDownBtn.addEventListener('click', () => {
+            const newSpeed = Math.max(50, currentSpeed - 25);
+            speedSlider.value = newSpeed;
+            updateSpeedDisplay(newSpeed);
+        });
+
+        // Lyrics-kontroll
+        lyricsToggle.addEventListener('click', toggleLyrics);
+
+        // === TANGENTBORDSSTÖD ===
+        document.addEventListener('keydown', (e) => {
+            // Förhindra standardbeteende endast för våra genvägar
+            switch(e.code) {
+                case 'Space':
+                    if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') {
+                        e.preventDefault();
+                        togglePlayPause();
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (e.target.tagName !== 'INPUT') {
+                        e.preventDefault();
+                        if (audioPlayer && currentTime >= 10) {
+                            audioPlayer.currentTime -= 10;
+                            announceStatus('Spola bakåt 10 sekunder');
+                        } else {
+                            prevBtn.click();
+                        }
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (e.target.tagName !== 'INPUT') {
+                        e.preventDefault();
+                        if (audioPlayer && currentTime + 10 <= duration) {
+                            audioPlayer.currentTime += 10;
+                            announceStatus('Spola framåt 10 sekunder');
+                        } else {
+                            nextBtn.click();
+                        }
+                    }
+                    break;
+                case 'ArrowUp':
+                    if (e.target.tagName !== 'INPUT') {
+                        e.preventDefault();
+                        volumeUpBtn.click();
+                    }
+                    break;
+                case 'ArrowDown':
+                    if (e.target.tagName !== 'INPUT') {
+                        e.preventDefault();
+                        volumeDownBtn.click();
+                    }
+                    break;
+                case 'KeyL':
+                    if (e.target.tagName !== 'INPUT') {
+                        e.preventDefault();
+                        toggleLyrics();
+                    }
+                    break;
+                case 'KeyT':
+                    if (e.target.tagName !== 'INPUT') {
+                        e.preventDefault();
+                        toggleTheme();
+                    }
+                    break;
+                case 'Equal':
+                case 'NumpadAdd':
+                    if (e.target.tagName !== 'INPUT') {
+                        e.preventDefault();
+                        changeTextSize('up');
+                    }
+                    break;
+                case 'Minus':
+                case 'NumpadSubtract':
+                    if (e.target.tagName !== 'INPUT') {
+                        e.preventDefault();
+                        changeTextSize('down');
+                    }
+                    break;
+                case 'KeyF':
+                    if (e.target.tagName !== 'INPUT') {
+                        e.preventDefault();
+                        fileUploadBtn.click();
+                    }
+                    break;
+                case 'KeyS':
+                    if (e.target.tagName !== 'INPUT') {
+                        e.preventDefault();
+                        shufflePlaylistBtn.click();
+                    }
+                    break;
+                case 'KeyC':
+                    if (e.target.tagName !== 'INPUT' && e.ctrlKey) {
+                        e.preventDefault();
+                        clearPlaylistBtn.click();
+                    }
+                    break;
+            }
+        });
+
+        // === INITIALISERING ===
+        document.addEventListener('DOMContentLoaded', () => {
+            // Ladda sparade preferenser
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme && savedTheme !== currentTheme) {
+                toggleTheme();
+            }
+            
+            const savedTextSize = localStorage.getItem('textSize');
+            if (savedTextSize && savedTextSize !== currentTextSize) {
+                currentTextSize = savedTextSize;
+            }
+            
+            // Sätt alltid textstorlek-klass på body
+            document.body.classList.add(`text-size-${currentTextSize}`);
+            const sizeNames = { 'normal': 'Normal (100%)', 'large': 'Stor (150%)', 'extra-large': 'Extra stor (200%)' };
+            textSizeDisplay.textContent = sizeNames[currentTextSize];
+            
+            console.log(`Initial textstorlek: ${currentTextSize}, klass: text-size-${currentTextSize}`);
+            console.log('Body-klasser:', document.body.classList.toString());
+            
+            // Sätt initiala värden
+            updateVolumeDisplay(70);
+            updateSpeedDisplay(100);
+            updatePlaylistDisplay();
+            
+            // Sätt fokus på play-knappen när sidan laddas
+            playBtn.focus();
+            
+            console.log('WCAG Player initialiserad');
+            console.log('Tangentbordsgenvägar:');
+            console.log('- Mellanslag: Spela/Pausa');
+            console.log('- Vänsterpil: Spola bakåt/Föregående låt');
+            console.log('- Högerpil: Spola framåt/Nästa låt');
+            console.log('- Uppåtpil: Höj volym');
+            console.log('- Nedåtpil: Sänk volym');
+            console.log('- L: Visa/dölj låttext');
+            console.log('- T: Växla tema');
+            console.log('- +: Öka textstorlek');
+            console.log('- -: Minska textstorlek');
+            console.log('- F: Ladda upp fil');
+            console.log('- S: Blanda spellista');
+            console.log('- Ctrl+C: Rensa spellista');
+        });
+
+        // === TILLGÄNGLIGHETSFÖRBÄTTRINGAR ===
+        
+        // Lägg till live-region för statusuppdateringar
+        const statusRegion = document.createElement('div');
+        statusRegion.setAttribute('aria-live', 'polite');
+        statusRegion.setAttribute('aria-atomic', 'true');
+        statusRegion.className = 'sr-only';
+        statusRegion.id = 'statusRegion';
+        document.body.appendChild(statusRegion);
+
+        // Funktion för att meddela statusändringar till skärmläsare
+        function announceStatus(message) {
+            statusRegion.textContent = message;
+        }
+
+        // Förbättra play/pause-feedback
+        const originalTogglePlayPause = togglePlayPause;
+        togglePlayPause = function() {
+            originalTogglePlayPause();
+            announceStatus(isPlaying ? 'Musik pausad' : 'Musik spelar');
+        };
+    </script>
+
+    <!-- Footer -->
+    <footer style="margin-top: auto; padding: 1.5rem; text-align: center; border-top: 1px solid var(--border-color); background-color: var(--bg-primary); width: 100%; max-width: 600px;">
+        <p style="margin: 0; font-size: var(--small-font-size); color: var(--text-secondary); font-weight: 400;">
+            Copyright © Patrik Thilén 2025
+        </p>
+    </footer>
+</body>
+</html>

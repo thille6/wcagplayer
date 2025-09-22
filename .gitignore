@@ -1,0 +1,76 @@
+# Operativsystem
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Editorer och IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.sublime-project
+.sublime-workspace
+
+# Temporära filer
+*.tmp
+*.temp
+*.log
+*.cache
+
+# Node.js (om du lägger till build-verktyg senare)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Backup-filer
+*.bak
+*.backup
+*_backup_*
+index_backup_*.html
+
+# Lokala konfigurationsfiler
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Webbläsarcache
+.cache/
+
+# Testfiler och exempel
+test/
+tests/
+examples/audio/
+sample-audio/
+*.mp3
+*.wav
+*.ogg
+*.m4a
+*.flac
+
+# Distribution/build-filer (för framtida användning)
+dist/
+build/
+public/
+
+# Dokumentation som genereras automatiskt
+docs/generated/
+
+# Coverage-rapporter
+coverage/
+*.lcov
+
+# Lokala utvecklingsfiler
+local/
+dev/
+development/
